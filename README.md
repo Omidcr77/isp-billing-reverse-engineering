@@ -1,243 +1,256 @@
-![License](https://img.shields.io/badge/license-MIT-blue)
 # DeltaSIB System Analysis
 
-This repository documents the technical investigation and architectural analysis of a DeltaSIB ISP billing system environment deployed on CentOS.
+Technical investigation and architectural analysis of the **DeltaSIB ISP billing and management system**.
 
-The goal of this research project is to understand the system architecture, document its components, analyze the licensing mechanism, and explore potential open-source replacement strategies for long-term sustainability.
+This repository documents the **reverse-engineering process, system architecture, database behavior, licensing mechanism, and service interactions** of a running DeltaSIB deployment.
 
----
-
-# Project Goals
-
-The objectives of this project are:
-
-* Document the filesystem structure of the DeltaSIB installation
-* Identify the main services used in the system
-* Analyze how the billing platform integrates with FreeRadius
-* Investigate the system licensing mechanism
-* Document commands used during the investigation
-* Prepare a roadmap for open-source replacement
-
-This repository is intended for **system administrators, network engineers, and developers** studying ISP billing system architecture.
+The purpose of this project is to **understand how the system operates internally**, including authentication flows, licensing logic, database structures, and integration with external network components such as **FreeRADIUS and MikroTik**.
 
 ---
 
-# Environment Information
+# Project Structure
 
-Operating System
-
-CentOS 7 (Core)
-
-Typical Installation Path
-
-/payamavaran/
-
-Main technologies involved:
-
-* FreeRadius authentication server
-* MariaDB database
-* Apache web interface
-* ISP billing backend services
-* Network authentication infrastructure
-
----
-
-# Main System Directory Structure
-
-The DeltaSIB system is primarily installed under:
-
-/payamavaran/
-
-Main directories observed during investigation:
-
-bin → system binaries and service executables
-conf → base configuration files
-config → system service configurations
-radius → FreeRadius server installation
-www → web interface and management panel
-
----
-
-# System Architecture Overview
-
-Typical deployment architecture:
-
-ISP Router / Mikrotik
-│
-▼
-FreeRadius
-│
-▼
-Billing Engine
-│
-▼
-MariaDB
-│
-▼
-Web Panel
-
-Authentication flow:
-
-User Device → Router → Radius → Billing → Database
-
----
-
-# Repository Structure
-
+```
 deltasib-system-analysis/
-
-README.md
-LICENSE
-
-investigation/
-filesystem_analysis.md
-database_analysis.md
-service_architecture.md
-
-commands/
-system_commands.txt
-investigation_commands.txt
-
-findings/
-licensing_system.md
-radius_integration.md
-
-diagrams/
-system_architecture.png
-billing_flow.png
-
-notes/
-migration_plan.md
-open_source_replacement.md
+│
+├── README.md
+├── LICENSE
+│
+├── investigation/
+│   ├── filesystem_analysis.md
+│   ├── database_analysis.md
+│   ├── service_architecture.md
+│
+├── commands/
+│   ├── system_commands.txt
+│   ├── investigation_commands.txt
+│
+├── findings/
+│   ├── licensing_system.md
+│   ├── radius_integration.md
+│
+├── diagrams/
+│   ├── system_architecture.png
+│   ├── billing_flow.png
+│
+└── notes/
+    ├── migration_plan.md
+    ├── open_source_replacement.md
+```
 
 ---
 
-# Investigation Sections
+# Overview
+
+DeltaSIB is an ISP management platform typically used for:
+
+* Internet user authentication
+* RADIUS accounting
+* Billing management
+* Customer service portals
+* MikroTik / network device integration
+* ISP monitoring and reporting
+
+The system combines several components:
+
+* **PHP Web Application**
+* **MariaDB / MySQL Database**
+* **FreeRADIUS Authentication Server**
+* **Network Equipment Integration**
+* **Hardware Licensing System**
+
+---
+
+# System Architecture
+
+![System Architecture](diagrams/system_architecture.png)
+
+High-level components:
+
+1. Web interface (`/payamavaran/www`)
+2. Core PHP backend logic
+3. MariaDB database
+4. FreeRADIUS authentication service
+5. Network equipment (routers / NAS)
+6. Licensing subsystem
+
+---
+
+# Billing and Authentication Flow
+
+![Billing Flow](diagrams/billing_flow.png)
+
+Typical operational flow:
+
+1. User connects to network
+2. Router sends authentication request to RADIUS
+3. FreeRADIUS queries DeltaSIB database
+4. DeltaSIB validates user account
+5. Access policy returned
+6. Accounting data stored in database
+
+---
+
+# Investigation Areas
 
 ## Filesystem Analysis
 
-This section documents the internal layout of the DeltaSIB installation including:
+Location of critical components:
 
-* binary executables
-* configuration directories
-* web interface files
-* service components
+```
+/payamavaran/www/deltasib
+/payamavaran/radius
+/payamavaran/config
+/payamavaran/bin
+```
 
-Location:
+These directories contain:
 
+* web interface
+* RADIUS configuration
+* system services
+* licensing tools
+
+Detailed analysis available in:
+
+```
 investigation/filesystem_analysis.md
+```
 
 ---
 
 ## Database Analysis
 
-This section contains research about:
+The system uses a **MariaDB / MySQL database named**
 
-* database schema
-* important tables
-* system state storage
-* authentication records
+```
+deltasib
+```
 
-Location:
+Core tables include:
 
+* system_state
+* users
+* accounting
+* reseller data
+* network services
+
+Schema documentation:
+
+```
 investigation/database_analysis.md
+```
 
 ---
 
 ## Service Architecture
 
-This section explains:
+Important backend services include:
 
-* how system services communicate
-* FreeRadius integration
-* web interface interaction
-* backend components
+* FreeRADIUS
+* Apache HTTP Server
+* MariaDB
+* DeltaSIB internal service tools
 
-Location:
+Detailed architecture notes:
 
+```
 investigation/service_architecture.md
-
----
-
-# Commands Used During Investigation
-
-All system commands used during the investigation are recorded for reproducibility.
-
-Examples include:
-
-* filesystem enumeration
-* service inspection
-* database queries
-* USB hardware checks
-* binary analysis
-
-Location:
-
-commands/system_commands.txt
-commands/investigation_commands.txt
+```
 
 ---
 
 # Key Findings
 
-The research currently focuses on:
+## Licensing System
 
-* licensing mechanism behavior
-* radius authentication integration
-* internal system architecture
-* service communication patterns
+The licensing system uses:
 
-Location:
+* hardware lock / dongle validation
+* internal license state tracking
+* database license information
+* expiration checks
 
-findings/
+Details:
 
----
-
-# Diagrams
-
-System diagrams will be stored here:
-
-diagrams/
-
-Examples:
-
-system_architecture.png
-billing_flow.png
-
-These diagrams help visualize the interaction between:
-
-* ISP router
-* Radius authentication
-* Billing backend
-* Database
-* Web panel
+```
+findings/licensing_system.md
+```
 
 ---
 
-# Future Work
+## RADIUS Integration
 
-Planned future work includes:
+DeltaSIB integrates with **FreeRADIUS** for:
 
-* deeper binary analysis
-* database schema mapping
-* service dependency documentation
-* open-source architecture design
-* migration roadmap
+* authentication
+* accounting
+* bandwidth management
+* user session control
 
-Notes and planning files are stored under:
+Integration details:
 
-notes/
+```
+findings/radius_integration.md
+```
+
+---
+
+# Investigation Commands
+
+Commands used during system inspection are stored in:
+
+```
+commands/system_commands.txt
+commands/investigation_commands.txt
+```
+
+These include:
+
+* filesystem enumeration
+* service inspection
+* database queries
+* binary analysis
+* configuration discovery
+
+---
+
+# Notes and Future Work
+
+Additional technical notes and ideas for system migration:
+
+```
+notes/migration_plan.md
+notes/open_source_replacement.md
+```
+
+These documents explore:
+
+* replacing proprietary components
+* migrating to open-source alternatives
+* designing a new architecture
 
 ---
 
 # Disclaimer
 
-This repository documents system architecture and technical investigation for educational and research purposes.
+This repository is intended **only for educational, research, and documentation purposes**.
 
-The goal is to understand how ISP billing systems operate and to explore open alternatives that can replace proprietary infrastructure in the future.
+No proprietary software or copyrighted components are distributed here.
+
+The repository documents **system behavior and architecture analysis only**.
+
+---
+
+# License
+
+This project is released under the **MIT License**.
+
+See the LICENSE file for details.
 
 ---
 
 # Author
 
-System investigation performed by the system administrator responsible for maintaining the DeltaSIB environment.
+ERKA PREP TEAM
+System Investigation Project
