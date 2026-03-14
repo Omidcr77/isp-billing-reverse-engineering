@@ -252,5 +252,4 @@ See the LICENSE file for details.
 
 # Author
 
-ERKA PREP TEAM
-System Investigation Project
+Omid Muradi
