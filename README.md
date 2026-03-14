@@ -1,3 +1,4 @@
+![License](https://img.shields.io/badge/license-MIT-blue)
 # DeltaSIB System Analysis
 
 This repository documents the technical investigation and architectural analysis of a DeltaSIB ISP billing system environment deployed on CentOS.
